@@ -1,0 +1,620 @@
+{
+    "pages": {
+        "configuration": {
+            "title": "Configuration", 
+            "description": "Set up your add-on", 
+            "tabs": [
+                {
+                    "title": "Account", 
+                    "name": "account", 
+                    "entity": [
+                        {
+                            "label": "Account name", 
+                            "type": "text", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "maxLength": 50, 
+                                    "type": "string", 
+                                    "errorMsg": "Length of ID should be between 1 and 50", 
+                                    "minLength": 1
+                                }, 
+                                {
+                                    "type": "regex", 
+                                    "errorMsg": "Account name must start with a letter and followed by alphabetic letters, digits or underscores.", 
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                }
+                            ], 
+                            "help": "Enter a unique name for this account.", 
+                            "field": "name"
+                        }, 
+                        {
+                            "label": "Github Instance", 
+                            "type": "text", 
+                            "defaultValue": "api.github.com", 
+                            "required": true,
+                            "validators": [
+                                {
+                                    "maxLength": 8192, 
+                                    "type": "string", 
+                                    "errorMsg": "Max length of text input is 8192", 
+                                    "minLength": 0
+                                }
+                            ], 
+                            "help": "Default domain path to use for accessing your Github server.  Example: https://[INSTANCE]/owner/repo", 
+                            "field": "github_instance"
+                        },
+                        {
+                            "label": "Username", 
+                            "type": "text", 
+                            "options": {
+                                "placeholder": "Enter the username here"
+                            }, 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "maxLength": 200, 
+                                    "type": "string", 
+                                    "errorMsg": "Length of username should be between 1 and 200", 
+                                    "minLength": 1
+                                }
+                            ], 
+                            "help": "Enter the username for this account.", 
+                            "field": "username"
+                        }, 
+                        {
+                            "label": "Password", 
+                            "type": "text", 
+                            "required": true, 
+                            "encrypted": true, 
+                            "validators": [
+                                {
+                                    "maxLength": 8192, 
+                                    "type": "string", 
+                                    "errorMsg": "Length of password should be between 1 and 8192", 
+                                    "minLength": 1
+                                }
+                            ], 
+                            "help": "Enter the password for this account.", 
+                            "field": "password"
+                        }
+                    ], 
+                    "table": {
+                        "actions": [
+                            "edit", 
+                            "delete", 
+                            "clone"
+                        ], 
+                        "header": [
+                            {
+                                "label": "Account name", 
+                                "field": "name"
+                            },
+                            {
+                                "label": "Github Instance", 
+                                "field": "github_instance"
+                            }, 
+                            {
+                                "label": "Username", 
+                                "field": "username"
+                            }
+                        ]
+                    }
+                }, 
+                {
+                    "title": "Proxy", 
+                    "name": "proxy", 
+                    "options": {
+                        "saveValidator": "function(formData) { if(!formData.proxy_enabled || formData.proxy_enabled === '0') {return true; } if(!formData.proxy_url) { return 'Proxy Host can not be empty'; } if(!formData.proxy_port) { return 'Proxy Port can not be empty'; } return true; }"
+                    }, 
+                    "entity": [
+                        {
+                            "label": "Enable", 
+                            "type": "checkbox", 
+                            "field": "proxy_enabled"
+                        }, 
+                        {
+                            "label": "Proxy Type", 
+                            "type": "singleSelect", 
+                            "options": {
+                                "disableSearch": true, 
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "http", 
+                                        "label": "http"
+                                    }, 
+                                    {
+                                        "value": "socks4", 
+                                        "label": "socks4"
+                                    }, 
+                                    {
+                                        "value": "socks5", 
+                                        "label": "socks5"
+                                    }
+                                ]
+                            }, 
+                            "defaultValue": "http", 
+                            "field": "proxy_type"
+                        }, 
+                        {
+                            "label": "Host", 
+                            "type": "text", 
+                            "validators": [
+                                {
+                                    "maxLength": 4096, 
+                                    "type": "string", 
+                                    "errorMsg": "Max host length is 4096", 
+                                    "minLength": 0
+                                }
+                            ], 
+                            "field": "proxy_url"
+                        }, 
+                        {
+                            "label": "Port", 
+                            "type": "text", 
+                            "validators": [
+                                {
+                                    "type": "number", 
+                                    "range": [
+                                        1, 
+                                        65535
+                                    ]
+                                }
+                            ], 
+                            "field": "proxy_port"
+                        }, 
+                        {
+                            "label": "Username", 
+                            "type": "text", 
+                            "validators": [
+                                {
+                                    "maxLength": 50, 
+                                    "type": "string", 
+                                    "errorMsg": "Max length of username is 50", 
+                                    "minLength": 0
+                                }
+                            ], 
+                            "field": "proxy_username"
+                        }, 
+                        {
+                            "label": "Password", 
+                            "type": "text", 
+                            "encrypted": true, 
+                            "validators": [
+                                {
+                                    "maxLength": 8192, 
+                                    "type": "string", 
+                                    "errorMsg": "Max length of password is 8192", 
+                                    "minLength": 0
+                                }
+                            ], 
+                            "field": "proxy_password"
+                        }, 
+                        {
+                            "label": "Reverse DNS resolution", 
+                            "type": "checkbox", 
+                            "field": "proxy_rdns"
+                        }
+                    ]
+                }, 
+                {
+                    "title": "Logging", 
+                    "name": "logging", 
+                    "entity": [
+                        {
+                            "label": "Log level", 
+                            "type": "singleSelect", 
+                            "options": {
+                                "disableSearch": true, 
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "DEBUG", 
+                                        "label": "DEBUG"
+                                    }, 
+                                    {
+                                        "value": "INFO", 
+                                        "label": "INFO"
+                                    }, 
+                                    {
+                                        "value": "WARNING", 
+                                        "label": "WARNING"
+                                    }, 
+                                    {
+                                        "value": "ERROR", 
+                                        "label": "ERROR"
+                                    }, 
+                                    {
+                                        "value": "CRITICAL", 
+                                        "label": "CRITICAL"
+                                    }
+                                ]
+                            }, 
+                            "defaultValue": "INFO", 
+                            "field": "loglevel"
+                        }
+                    ]
+                } 
+            ]
+        }, 
+        "inputs": {
+            "title": "Inputs", 
+            "description": "Manage your data inputs", 
+            "services": [
+                {
+                    "title": "Github API: Repository Stats", 
+                    "name": "github_api_repos_stats", 
+                    "entity": [
+                        {
+                            "label": "Name", 
+                            "type": "text", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "type": "regex", 
+                                    "errorMsg": "Input Name must start with a letter and followed by alphabetic letters, digits or underscores.", 
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                }, 
+                                {
+                                    "maxLength": 100, 
+                                    "type": "string", 
+                                    "errorMsg": "Length of input name should be between 1 and 100", 
+                                    "minLength": 1
+                                }
+                            ], 
+                            "help": "Enter a unique name for the data input", 
+                            "field": "name"
+                        }, 
+                        {
+                            "label": "Interval", 
+                            "type": "text", 
+                            "required": true, 
+                            "defaultValue": 86400,
+                            "validators": [
+                                {
+                                    "type": "regex", 
+                                    "errorMsg": "Interval must be an integer.", 
+                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$"
+                                }
+                            ], 
+                            "help": "Time interval of input in seconds.", 
+                            "field": "interval"
+                        }, 
+                        {
+                            "label": "Index", 
+                            "type": "singleSelect", 
+                            "options": {
+                                "endpointUrl": "data/indexes", 
+                                "createSearchChoice": true, 
+                                "blackList": "^_.*$"
+                            }, 
+                            "defaultValue": "default", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "maxLength": 80, 
+                                    "type": "string", 
+                                    "errorMsg": "Length of index name should be between 1 and 80.", 
+                                    "minLength": 1
+                                }
+                            ], 
+                            "field": "index"
+                        }, 
+                        {
+                            "label": "Github Credentials", 
+                            "type": "singleSelect", 
+                            "options": {
+                                "referenceName": "account"
+                            }, 
+                            "required": true, 
+                            "help": "Select stored credentials with appropriate access to specified Github repository.", 
+                            "field": "github_creds"
+                        }, 
+                        {
+                            "label": "Owner or Organization", 
+                            "type": "text", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "maxLength": 8192, 
+                                    "type": "string", 
+                                    "errorMsg": "Max length of text input is 8192", 
+                                    "minLength": 0
+                                }
+                            ], 
+                            "help": "Name of user or Github organization which owns the repository.  Example: https://api.github.com/[OWNER]/repo", 
+                            "field": "github_owner"
+                        }, 
+                        {
+                            "label": "Repository", 
+                            "type": "text", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "maxLength": 8192, 
+                                    "type": "string", 
+                                    "errorMsg": "Max length of text input is 8192", 
+                                    "minLength": 0
+                                }
+                            ], 
+                            "help": "Name of repository. Example: https://api.github.com/owner/[REPOSITORY]", 
+                            "field": "github_repo"
+                        }
+                    ]
+                }, 
+                {
+                    "title": "Github API: Repository Commits", 
+                    "name": "github_api_repos_commits", 
+                    "entity": [
+                        {
+                            "label": "Name", 
+                            "type": "text", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "type": "regex", 
+                                    "errorMsg": "Input Name must start with a letter and followed by alphabetic letters, digits or underscores.", 
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                }, 
+                                {
+                                    "maxLength": 100, 
+                                    "type": "string", 
+                                    "errorMsg": "Length of input name should be between 1 and 100", 
+                                    "minLength": 1
+                                }
+                            ], 
+                            "help": "Enter a unique name for the data input", 
+                            "field": "name"
+                        }, 
+                        {
+                            "label": "Interval", 
+                            "type": "text", 
+                            "required": true, 
+                            "defaultValue": "86400",
+                            "validators": [
+                                {
+                                    "type": "regex", 
+                                    "errorMsg": "Interval must be an integer.", 
+                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$"
+                                }
+                            ], 
+                            "help": "Time interval of input in seconds.", 
+                            "field": "interval"
+                        }, 
+                        {
+                            "label": "Index", 
+                            "type": "singleSelect", 
+                            "options": {
+                                "endpointUrl": "data/indexes", 
+                                "createSearchChoice": true, 
+                                "blackList": "^_.*$"
+                            }, 
+                            "defaultValue": "default", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "maxLength": 80, 
+                                    "type": "string", 
+                                    "errorMsg": "Length of index name should be between 1 and 80.", 
+                                    "minLength": 1
+                                }
+                            ], 
+                            "field": "index"
+                        }, 
+                        {
+                            "label": "Owner or Organization", 
+                            "type": "text", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "maxLength": 8192, 
+                                    "type": "string", 
+                                    "errorMsg": "Max length of text input is 8192", 
+                                    "minLength": 0
+                                }
+                            ], 
+                            "help": "Name of user or Github organization which owns the repository.  Example: https://api.github.com/[OWNER]/repo", 
+                            "field": "github_owner"
+                        }, 
+                        {
+                            "label": "Repository", 
+                            "type": "text", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "maxLength": 8192, 
+                                    "type": "string", 
+                                    "errorMsg": "Max length of text input is 8192", 
+                                    "minLength": 0
+                                }
+                            ], 
+                            "help": "Name of repository. Example: https://api.github.com/owner/[REPOSITORY]", 
+                            "field": "github_repo"
+                        }, 
+                        {
+                            "label": "Github Credentials", 
+                            "type": "singleSelect", 
+                            "options": {
+                                "referenceName": "account"
+                            }, 
+                            "required": true, 
+                            "help": "Select stored credentials with appropriate access to specified Github repository.", 
+                            "field": "github_creds"
+                        }
+                    ]
+                }, 
+                {
+                    "title": "Github API: Repository Issues", 
+                    "name": "github_api_repos_issues", 
+                    "entity": [
+                        {
+                            "label": "Name", 
+                            "type": "text", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "type": "regex", 
+                                    "errorMsg": "Input Name must start with a letter and followed by alphabetic letters, digits or underscores.", 
+                                    "pattern": "^[a-zA-Z]\\w*$"
+                                }, 
+                                {
+                                    "maxLength": 100, 
+                                    "type": "string", 
+                                    "errorMsg": "Length of input name should be between 1 and 100", 
+                                    "minLength": 1
+                                }
+                            ], 
+                            "help": "Enter a unique name for the data input", 
+                            "field": "name"
+                        }, 
+                        {
+                            "label": "Interval", 
+                            "type": "text", 
+                            "required": true, 
+                            "defaultValue": 86400,
+                            "validators": [
+                                {
+                                    "type": "regex", 
+                                    "errorMsg": "Interval must be an integer.", 
+                                    "pattern": "^\\-[1-9]\\d*$|^\\d*$"
+                                }
+                            ], 
+                            "help": "Time interval of input in seconds.", 
+                            "field": "interval"
+                        }, 
+                        {
+                            "label": "Index", 
+                            "type": "singleSelect", 
+                            "options": {
+                                "endpointUrl": "data/indexes", 
+                                "createSearchChoice": true, 
+                                "blackList": "^_.*$"
+                            }, 
+                            "defaultValue": "default", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "maxLength": 80, 
+                                    "type": "string", 
+                                    "errorMsg": "Length of index name should be between 1 and 80.", 
+                                    "minLength": 1
+                                }
+                            ], 
+                            "field": "index"
+                        },  
+                        {
+                            "label": "Owner or Organization", 
+                            "type": "text", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "maxLength": 8192, 
+                                    "type": "string", 
+                                    "errorMsg": "Max length of text input is 8192", 
+                                    "minLength": 0
+                                }
+                            ], 
+                            "help": "Name of user or Github organization which owns the repository. Example: https://api.github.com/[OWNER]/repo", 
+                            "field": "github_owner"
+                        }, 
+                        {
+                            "label": "Repository", 
+                            "type": "text", 
+                            "required": true, 
+                            "validators": [
+                                {
+                                    "maxLength": 8192, 
+                                    "type": "string", 
+                                    "errorMsg": "Max length of text input is 8192", 
+                                    "minLength": 0
+                                }
+                            ], 
+                            "help": "Name of repository. Example: https://api.github.com/owner/[REPOSITORY]", 
+                            "field": "github_repo"
+                        }, 
+                        {
+                            "label": "Github Credentials", 
+                            "type": "singleSelect", 
+                            "options": {
+                                "referenceName": "account"
+                            }, 
+                            "required": true, 
+                            "help": "Select stored credentials with appropriate access to specified Github repository.", 
+                            "field": "github_creds"
+                        }
+                    ]
+                }
+            ], 
+            "table": {
+                "actions": [
+                    "edit", 
+                    "enable", 
+                    "delete", 
+                    "clone"
+                ], 
+                "moreInfo": [
+                    {
+                        "label": "Name", 
+                        "field": "name"
+                    }, 
+                    {
+                        "label": "Interval", 
+                        "field": "interval"
+                    }, 
+                    {
+                        "label": "Index", 
+                        "field": "index"
+                    }, 
+                    {
+                        "label": "Status", 
+                        "field": "disabled"
+                    }, 
+                    {
+                        "label": "Github Credentials", 
+                        "field": "github_creds"
+                    },  
+                    {
+                        "label": "Owner or Organization", 
+                        "field": "github_owner"
+                    }, 
+                    {
+                        "label": "Repository", 
+                        "field": "github_repo"
+                    }
+                ], 
+                "header": [
+                    {
+                        "label": "Name", 
+                        "field": "name"
+                    }, 
+                    {
+                        "label": "Source Type", 
+                        "field": "sourcetype"
+                    }, 
+                    {
+                        "label": "Owner or Organization", 
+                        "field": "github_owner"
+                    }, 
+                    {
+                        "label": "Repository", 
+                        "field": "github_repo"
+                    }, 
+                    {
+                        "label": "Github Credentials", 
+                        "field": "github_creds"
+                    }, 
+                    {
+                        "label": "Status", 
+                        "field": "disabled"
+                    }
+                ]
+            }
+        }
+    }, 
+    "meta": {
+        "apiVersion": "3.0.0", 
+        "restRoot": "TA_Github", 
+        "displayName": "Github", 
+        "name": "TA-Github", 
+        "version": "1.0.0"
+    }
+}
