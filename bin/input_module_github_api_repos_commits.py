@@ -54,7 +54,7 @@ def collect_events(helper, ew):
     parameter = {}
     parameter['since'] = last_status
     parameter['per_page'] = git_pagesize
-    url = "https://{0}/api/v3/repos/{1}/{2}/commits".format(git_instance,git_owner,git_repo)
+    url = "https://{0}/repos/{1}/{2}/commits".format(git_instance,git_owner,git_repo)
     method = 'GET'
     
     try:
