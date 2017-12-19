@@ -36,7 +36,7 @@ def collect_events(helper, ew):
     auth = base64.b64encode(git_username + ":" + git_password).decode("ascii")
     header =  {'Authorization': 'Basic {}'.format(auth)}
     parameter = {}
-    url = "https://{0}/api/v3/repos/{1}/{2}/stats/contributors".format(git_instance,git_owner,git_repo)
+    url = "https://{0}/repos/{1}/{2}/stats/contributors".format(git_instance,git_owner,git_repo)
     method = 'GET'
     
     try:
