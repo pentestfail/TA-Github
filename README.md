@@ -3,7 +3,7 @@ Github Addon
 Provides modular inputs & framework to ingest JSON data from Github APIs.
 
 ### App Setup:
-1. Store Github credentials to be used on the "Configuration" page and "Account" tab, then click "Add" to add new credentials. Since an account is specific to a GitHub instance, you must specify the server for the account (will be used for all inputs leveraging the account credentials).
+1. Store Github credentials to be used on the "Configuration" page and "Account" tab, then click "Add" to add new credentials. Since an account is specific to a GitHub instance, you must specify the server for the account (will be used for all inputs leveraging the account credentials). Specify if account is for a Github Enterprise instance via the checkbox (uses different API path and likely will fail otherwise).
     - App supports authentication via username & password or account "personal access tokens"
     - DOES NOT support 2-factor tokens
     - [GitHub Personal Access Tokens](https://github.com/blog/1509-personal-api-tokens)
