@@ -269,6 +269,8 @@ class CredentialManager(object):
                 clear_password = ''
                 for index in sorted(field_clear.keys()):
                     if field_clear[index] != self.END_MARK:
+                        if clear_password is None: clear_password = ''
+                        if field_clear[index] is None: field_clear[index] = ''
                         clear_password += field_clear[index]
                     else:
                         break
