@@ -1,4 +1,5 @@
 [<name>]
 username = 
 password = 
-github_instance =
+github_instance = 
+enterprise = 

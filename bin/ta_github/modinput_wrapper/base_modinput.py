@@ -113,8 +113,8 @@ class BaseModInput(smi.Script):
             self.parse_input_args(input_definition)
         except Exception as e:
             import traceback
-            self.log_error(traceback.format_exc(e))
-            print >> sys.stderr, traceback.format_exc(e)
+            self.log_error(traceback.format_exc())
+            print >> sys.stderr, traceback.format_exc()
             self.input_stanzas = {}
         if not self.input_stanzas:
             # if no stanza found. Just return
@@ -127,8 +127,8 @@ class BaseModInput(smi.Script):
             self.collect_events(ew)
         except Exception as e:
             import traceback
-            self.log_error('Get error when collecting events.\n' + traceback.format_exc(e))
-            print >> sys.stderr, traceback.format_exc(e)
+            self.log_error('Get error when collecting events.\n' + traceback.format_exc())
+            print >> sys.stderr, traceback.format_exc()
             raise RuntimeError(str(e))
 
     def collect_events(self, event_writer):

@@ -25,6 +25,13 @@ fields = [
         )
     ),
     field.RestField(
+        'enterprise',
+        required=False,
+        encrypted=False,
+        default=None,
+        validator=None
+    ),
+    field.RestField(
         'username',
         required=True,
         encrypted=False,

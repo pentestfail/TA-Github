@@ -43,6 +43,12 @@
                             ], 
                             "help": "Default domain path to use for accessing your Github server.  Example: https://[INSTANCE]/owner/repo", 
                             "field": "github_instance"
+                        }, 
+                        {
+                            "label": "Enterprise API", 
+                            "type": "checkbox", 
+                            "help": "Configures input to use Github Enterprise API v3 endpoints (/api/v3/) instead of Github.com public API.",
+                            "field": "enterprise"
                         },
                         {
                             "label": "Username", 
@@ -93,6 +99,10 @@
                             {
                                 "label": "Github Instance", 
                                 "field": "github_instance"
+                            }, 
+                            {
+                                "label": "Enterprise", 
+                                "field": "enterprise"
                             }, 
                             {
                                 "label": "Username", 
@@ -401,6 +411,16 @@
                             "field": "index"
                         }, 
                         {
+                            "label": "Github Credentials", 
+                            "type": "singleSelect", 
+                            "options": {
+                                "referenceName": "account"
+                            }, 
+                            "required": true, 
+                            "help": "Select stored credentials with appropriate access to specified Github repository.", 
+                            "field": "github_creds"
+                        }, 
+                        {
                             "label": "Owner or Organization", 
                             "type": "text", 
                             "required": true, 
@@ -429,16 +449,6 @@
                             ], 
                             "help": "Name of repository. Example: https://api.github.com/owner/[REPOSITORY]", 
                             "field": "github_repo"
-                        }, 
-                        {
-                            "label": "Github Credentials", 
-                            "type": "singleSelect", 
-                            "options": {
-                                "referenceName": "account"
-                            }, 
-                            "required": true, 
-                            "help": "Select stored credentials with appropriate access to specified Github repository.", 
-                            "field": "github_creds"
                         }
                     ]
                 }, 
@@ -500,6 +510,16 @@
                                 }
                             ], 
                             "field": "index"
+                        }, 
+                        {
+                            "label": "Github Credentials", 
+                            "type": "singleSelect", 
+                            "options": {
+                                "referenceName": "account"
+                            }, 
+                            "required": true, 
+                            "help": "Select stored credentials with appropriate access to specified Github repository.", 
+                            "field": "github_creds"
                         },  
                         {
                             "label": "Owner or Organization", 
@@ -530,16 +550,6 @@
                             ], 
                             "help": "Name of repository. Example: https://api.github.com/owner/[REPOSITORY]", 
                             "field": "github_repo"
-                        }, 
-                        {
-                            "label": "Github Credentials", 
-                            "type": "singleSelect", 
-                            "options": {
-                                "referenceName": "account"
-                            }, 
-                            "required": true, 
-                            "help": "Select stored credentials with appropriate access to specified Github repository.", 
-                            "field": "github_creds"
                         }
                     ]
                 }

@@ -269,7 +269,7 @@ class Setup_Util(object):
                 raise Exception("Proxy host must not be empty!")
             proxy_port = proxy_settings.get('proxy_port')
             if proxy_port is None or not proxy_port.isdigit():
-                raise Exception("Proxy port must a number!")
+                raise Exception("Proxy port must be a number!")
 
     def _transform(self, value, field_type):
         '''
