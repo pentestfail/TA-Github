@@ -5,7 +5,10 @@ import os
 import sys
 import time
 import base64
-import urlparse
+try:
+    from urllib import parse as urlparse
+except ImportError:
+    from urllib2 import urlparse
 import json
 from datetime import datetime, timedelta
 

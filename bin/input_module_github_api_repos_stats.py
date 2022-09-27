@@ -6,7 +6,10 @@ import sys
 import time
 import datetime
 import base64
-import urlparse
+try:
+    from urllib import parse as urlparse
+except ImportError:
+    from urllib2 import urlparse
 import json
 
 
