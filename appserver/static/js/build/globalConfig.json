@@ -65,7 +65,7 @@
                                     "minLength": 1
                                 }
                             ], 
-                            "help": "Enter the username for this account.", 
+                            "help": "Enter the username for this account. Please leave blank in case of OAuth authentication.", 
                             "field": "username"
                         }, 
                         {
@@ -81,7 +81,7 @@
                                     "minLength": 1
                                 }
                             ], 
-                            "help": "Enter the password for this account.", 
+                            "help": "Enter the password or the token in case of OAuth authentication for this account.", 
                             "field": "password"
                         }
                     ], 
