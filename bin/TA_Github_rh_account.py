@@ -33,7 +33,7 @@ fields = [
     ),
     field.RestField(
         'username',
-        required=True,
+        required=False,
         encrypted=False,
         default=None,
         validator=validator.String(

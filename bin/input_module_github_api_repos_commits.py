@@ -27,11 +27,13 @@ def collect_events(helper, ew):
     git_instance = helper.get_arg('github_creds')['github_instance']
     git_owner = helper.get_arg('github_owner')
     git_repo = helper.get_arg('github_repo')
-    git_username = helper.get_arg('github_creds')['username']
+    git_username = helper.get_arg('github_creds').get('username', "")
     git_password = helper.get_arg('github_creds')['password']
-    git_enterprise = bool(helper.get_arg('github_creds')['enterprise'])
+    git_enterprise = bool(helper.get_arg('github_creds').get('enterprise', 0))
     git_pagesize = helper.get_arg('pagesize') or 50 #Page size of results
+    # TODO make this configurable at input configuration...
     git_daysago = helper.get_arg('days_ago') or 356 #Max days ago since commit
+    opt_proxy = bool(helper.get_proxy())
     inputname = helper.get_input_stanza_names()
     inputtype = helper.get_input_type()
     inputsource = inputtype + ":" + inputname
@@ -51,12 +53,16 @@ def collect_events(helper, ew):
         helper.log_error("input_type={0:s} input={1:s} message='Unable to retrieve last execution checkpoint!'".format(inputtype,inputname))
         raise e
     
-    # Create API request parameters    
-    auth = base64.b64encode(git_username + ":" + git_password).decode("ascii")
+    # Create API request parameters
+    connect_string = "{}:{}".format(git_username, git_password)
+    auth = base64.b64encode(connect_string.encode("ascii")).decode("ascii")
     header =  {'Authorization': 'Basic {}'.format(auth)}
-    parameter = {}
-    parameter['since'] = last_status
-    parameter['per_page'] = git_pagesize
+    if git_username == "":
+        header = {'Authorization': 'Bearer {}'.format(git_password)}
+    parameter = {
+        'since': last_status,
+        'per_page': git_pagesize
+    }
     method = 'GET'
 
     # Determine API schema to use
@@ -78,7 +84,7 @@ def collect_events(helper, ew):
         i=0
         while has_results:
             # Leverage helper function to send http request
-            response = helper.send_http_request(url, method, parameters=parameter, payload=None, headers=header, cookies=None, verify=True,     cert=None, timeout=25, use_proxy=True)
+            response = helper.send_http_request(url, method, parameters=parameter, payload=None, headers=header, cookies=None, verify=True, cert=None, timeout=25, use_proxy=opt_proxy)
             helper.log_debug("input_type={0:s} input={1:s} message='Requesting commit data from Github API.' url='{2:s}' parameters='{3:s}'".format(inputtype,inputname,url,json.dumps(parameter)))
 
             # Return API response code
@@ -123,7 +129,7 @@ def collect_events(helper, ew):
 
             if has_results:
                 helper.log_debug("input_type={0:s} input={1:s} message='Getting next page.' link_next='{2:s}'".format(inputtype,inputname,url))
-                response = helper.send_http_request(url, method, parameters=None, payload=None, headers=header, cookies=None, verify=True, cert=None, timeout=25, use_proxy=True)
+                response = helper.send_http_request(url, method, parameters=None, payload=None, headers=header, cookies=None, verify=True, cert=None, timeout=25, use_proxy=opt_proxy)
             else:
                 helper.log_debug("input_type={0:s} input={1:s} message='No additional pages.'".format(inputtype,inputname))
             

@@ -25,9 +25,10 @@ def collect_events(helper, ew):
     git_instance = helper.get_arg('github_creds')['github_instance']
     git_owner = helper.get_arg('github_owner')
     git_repo = helper.get_arg('github_repo')
-    git_username = helper.get_arg('github_creds')['username']
+    git_username = helper.get_arg('github_creds').get('username', "")
     git_password = helper.get_arg('github_creds')['password']
-    git_enterprise = bool(helper.get_arg('github_creds')['enterprise'])
+    git_enterprise = bool(helper.get_arg('github_creds').get('enterprise', 0))
+    opt_proxy = bool(helper.get_proxy())
     inputname = helper.get_input_stanza_names()
     inputtype = helper.get_input_type()
     inputsource = inputtype + ":" + inputname
@@ -36,9 +37,12 @@ def collect_events(helper, ew):
     # Create checkpoint key
     opt_checkpoint = "{0:s}-{1:s}".format(inputtype,inputname)
 
-    # Create API request parameters    
-    auth = base64.b64encode(git_username + ":" + git_password).decode("ascii")
+    # Create API request parameters
+    connect_string = "{}:{}".format(git_username, git_password)
+    auth = base64.b64encode(connect_string.encode("ascii")).decode("ascii")
     header =  {'Authorization': 'Basic {}'.format(auth)}
+    if git_username == "":
+        header = {'Authorization': 'Bearer {}'.format(git_password)}
     parameter = {}
     method = 'GET'
 
@@ -58,7 +62,7 @@ def collect_events(helper, ew):
     try:
         # Leverage helper function to send http request
         helper.log_debug("input_type={0:s} input={1:s} message='Requesting repository stats from Github API.' url='{2:s}' parameters={3:s}".format(inputtype,inputname,url,parameter))
-        response = helper.send_http_request(url, method, parameters=parameter, payload=None, headers=header, cookies=None, verify=True, cert=None, timeout=25, use_proxy=True)
+        response = helper.send_http_request(url, method, parameters=parameter, payload=None, headers=header, cookies=None, verify=True, cert=None, timeout=25, use_proxy=opt_proxy)
 
         # Return API response code
         r_status = response.status_code
@@ -67,7 +71,7 @@ def collect_events(helper, ew):
         if r_status is 202:
             helper.log_info("input_type={0:s} input={1:s} message='API still processing request. Will retry in 10 seconds.' status_code={2:d} reason='{3:s}'".format(inputtype,inputname,r_status,r_reason))
             time.sleep(15) # Wait 15 seconds and retry
-            response = helper.send_http_request(url, method, parameters=parameter, payload=None, headers=header, cookies=None, verify=True, cert=None, timeout=25, use_proxy=True)
+            response = helper.send_http_request(url, method, parameters=parameter, payload=None, headers=header, cookies=None, verify=True, cert=None, timeout=25, use_proxy=opt_proxy)
             # Return API response code
             r_status = response.status_code # Update response status_code
             r_reason = response.reason # Update response reason
