@@ -58,6 +58,10 @@ class ModInputgithub_api_repos_commits(modinput_wrapper.base_modinput.BaseModInp
                                          description="Select stored credentials with appropriate access to specified Github repository.",
                                          required_on_create=True,
                                          required_on_edit=False))
+        scheme.add_argument(smi.Argument("ignore_history", title="Ignore Commits History",
+                                         description="Index data from the most recent commit only.",
+                                         required_on_create=False,
+                                         required_on_edit=False))
         return scheme
 
     def get_app_name(self):

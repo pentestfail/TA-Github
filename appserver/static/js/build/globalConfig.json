@@ -447,8 +447,15 @@
                                     "minLength": 0
                                 }
                             ], 
-                            "help": "Name of repository. Example: https://api.github.com/owner/[REPOSITORY]", 
+                            "help": "Name of repository. Please use '*' to select all. Example: https://api.github.com/owner/[REPOSITORY]",
                             "field": "github_repo"
+                        },
+                        {
+                            "label": "Ignore commits history",
+                            "required": false,
+                            "type": "checkbox",
+                            "help": "By checking it, only the most recent commit (within 1 year of time from now for a given repository) will be indexed at the first execution.",
+                            "field": "ignore_history"
                         }
                     ]
                 }, 

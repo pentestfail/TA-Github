@@ -34,6 +34,13 @@ fields = [
         )
     ), 
     field.RestField(
+        'ignore_history',
+        required=False,
+        encrypted=False,
+        default=None,
+        validator=None
+    ),
+    field.RestField(
         'github_owner',
         required=True,
         encrypted=False,
