@@ -61,6 +61,13 @@ fields = [
         )
     ), 
     field.RestField(
+        'github_repotype',
+        required=True,
+        encrypted=False,
+        default='public',
+        validator=None
+    ),
+    field.RestField(
         'github_creds',
         required=True,
         encrypted=False,

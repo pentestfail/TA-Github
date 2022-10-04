@@ -27,6 +27,7 @@ def fetch_repos(helper, url, header):
     repo_dt_lastpush = ""
     header['Accept'] = 'application/vnd.github.v3+json'
     params = {
+        'type': helper.get_arg('github_repotype'),
         'per_page': 100,
         'page': 1
     }
@@ -38,7 +39,7 @@ def fetch_repos(helper, url, header):
         repositories = response.json()
         total_repos = len(repositories)
         for repo in repositories:
-            repo_names.append(repo['name'])
+            repo_names.append(repo['full_name'])
 
             last_pushed = repo['pushed_at']
             # Checking last push date
@@ -103,6 +104,13 @@ def collect_events(helper, ew):
         git_repositories = git_repo.split(',')
     
     for git_repo in git_repositories:
+        git_repo_fullname = ""
+
+        if '/' in git_repo:
+            # This is a GitHub repository fullname
+            git_repo_fullname = git_repo
+            git_repo = git_repo.split('/')[1]
+
         # Determine API schema to use
         if git_instance=="api.github.com":
             url = "https://{0}/repos/{1}/{2}/commits".format(git_instance,git_owner,git_repo)
@@ -174,6 +182,8 @@ def collect_events(helper, ew):
                 for record in obj:
                     event = record['commit']
                     event['repository'] = git_repo
+                    if git_repo_fullname:
+                        event['repository_fullname'] = git_repo_fullname
                     event['owner'] = git_owner
                     event['sha'] = record['sha']
                     del event['tree']

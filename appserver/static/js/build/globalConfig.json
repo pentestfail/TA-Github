@@ -451,6 +451,43 @@
                             "field": "github_repo"
                         },
                         {
+                            "field": "github_repotype",
+                            "label": "Repository Type",
+                            "help": "Specifies the type of repositories you want returned. Ignored with a single repository set.",
+                            "required": true,
+                            "type": "singleSelect",
+                            "options": {
+                                "disableSearch": true,
+                                "autoCompleteFields": [
+                                    {
+                                        "value": "all",
+                                        "label": "All"
+                                    },
+                                    {
+                                        "value": "public",
+                                        "label": "Public"
+                                    },
+                                    {
+                                        "value": "private",
+                                        "label": "Private"
+                                    },
+                                    {
+                                        "value": "forks",
+                                        "label": "Forks"
+                                    },
+                                    {
+                                        "value": "sources",
+                                        "label": "Sources"
+                                    },
+                                    {
+                                        "value": "member",
+                                        "label": "Member"
+                                    }
+                                ]
+                            },
+                            "defaultValue": "public"
+                        },
+                        {
                             "label": "Ignore commits history",
                             "required": false,
                             "type": "checkbox",
