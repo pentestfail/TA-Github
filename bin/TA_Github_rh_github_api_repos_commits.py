@@ -34,6 +34,13 @@ fields = [
         )
     ), 
     field.RestField(
+        'ignore_history',
+        required=False,
+        encrypted=False,
+        default=None,
+        validator=None
+    ),
+    field.RestField(
         'github_owner',
         required=True,
         encrypted=False,
@@ -53,6 +60,13 @@ fields = [
             max_len=8192, 
         )
     ), 
+    field.RestField(
+        'github_repotype',
+        required=True,
+        encrypted=False,
+        default='public',
+        validator=None
+    ),
     field.RestField(
         'github_creds',
         required=True,
