@@ -22,6 +22,33 @@ def validate_input(helper, definition):
     github_since = definition.parameters.get('days_ago', None)
     pass
 
+class GithubRateLimitException(Exception):
+    def __init__(self, reset_time):
+        # Calculate seconds to wait from certain time diff
+        retry_after = reset_time - float(datetime.strftime(datetime.now(), "%s"))
+        self.retry_after = retry_after
+
+def parse_response(helper, res):
+    response = res.json()
+
+    if res.status_code == 403:
+        if res.headers['X-RateLimit-Remaining'] == '0':
+            raise GithubRateLimitException(float(res.headers["X-RateLimit-Reset"]))
+        else:
+            raise Exception("Check your Token - {0}".format(response['message']))
+    elif res.status_code == 404:
+        raise Exception("Check your Endpoint / URL - {0}".format(response['message']))
+    elif res.status_code == 409 and response['message'] == "Git Repository is empty.":
+        return {}
+    elif res.status_code != 200:
+        helper.log_debug("Github responded with [{0}] - {1}".format(
+            res.status_code,
+            res.text
+        ))
+        raise Exception("Request to Github unsuccessful. {0} - Error message {1}".format(res.status_code, response['message']))
+
+    return response
+
 def fetch_repos(helper, url, header):
     repo_names = []
     repo_dt_lastpush = ""
@@ -33,10 +60,16 @@ def fetch_repos(helper, url, header):
     }
 
     while True:
-        response = helper.send_http_request(url, "GET", parameters=params, headers=header, verify=True, timeout=25, use_proxy=bool(helper.get_proxy()))
-        response.raise_for_status()
+        try:
+            response = helper.send_http_request(url, "GET", parameters=params, headers=header, verify=True, timeout=25, use_proxy=bool(helper.get_proxy()))
+            repositories = parse_response(helper, response)
 
-        repositories = response.json()
+        except GithubRateLimitException as e:
+            helper.log_info("GitHub Rate Limit hit: waiting for {0} seconds before trying again the call to {1}".format(e.retry_after, url))
+            time.sleep(e.retry_after)
+            response = helper.send_http_request(url, "GET", parameters=params, headers=header, verify=True, timeout=25, use_proxy=bool(helper.get_proxy()))
+            repositories = parse_response(helper, response)
+
         total_repos = len(repositories)
         for repo in repositories:
             repo_names.append(repo['full_name'])
@@ -88,9 +121,9 @@ def collect_events(helper, ew):
     # Create API request parameters
     connect_string = "{0}:{1}".format(git_username, git_password)
     auth = base64.b64encode(connect_string.encode("ascii")).decode("ascii")
-    header =  {'Authorization': 'Basic {}'.format(auth)}
+    header =  {'Authorization': 'Basic {0}'.format(auth)}
     if git_username == "":
-        header['Authorization'] = 'Bearer {}'.format(git_password)
+        header['Authorization'] = 'Bearer {0}'.format(git_password)
     method = 'GET'
 
     if git_repo == "*":
@@ -98,7 +131,7 @@ def collect_events(helper, ew):
             # Fetch all repos and the start date (oldest over all)
             git_repositories, initial_status = fetch_repos(helper, "https://{0}/orgs/{1}/repos".format(git_instance, git_owner), header)
         except Exception as e:
-            helper.log_error("Exception occurred while fetching all repositories - {}".format(e))
+            helper.log_error("Exception occurred while fetching all repositories - {0}".format(e))
             raise e
     else:
         git_repositories = git_repo.split(',')
@@ -145,21 +178,16 @@ def collect_events(helper, ew):
             #total = 0
             i=0
             while has_results:
-                # Leverage helper function to send http request
-                response = helper.send_http_request(url, method, parameters=parameter, payload=None, headers=header, cookies=None, verify=True, cert=None, timeout=25, use_proxy=opt_proxy)
-                helper.log_debug("input_type={0:s} input={1:s} message='Requesting commit data from Github API.' url='{2:s}' parameters='{3:s}'".format(inputtype,inputname,url,json.dumps(parameter)))
-
-                # Return API response code
-                r_status = response.status_code
-                # Return API request status_code
-                if r_status is 202:
-                    helper.log_info("input_type={0:s} input={1:s} message='API still processing request. Will retry in 10 seconds.' status_code={2:d}".format(inputtype,inputname,r_status))
-                    time.sleep(10)
-                elif r_status is not 200:
-                    helper.log_error("input_type={0:s} input={1:s} message='API request unsuccessful.' status_code={2:d}".format(inputtype,inputname,r_status))
-                    response.raise_for_status()
-                # Return API request as JSON
-                obj = response.json()
+                try:
+                    # Leverage helper function to send http request
+                    response = helper.send_http_request(url, method, parameters=parameter, payload=None, headers=header, cookies=None, verify=True, cert=None, timeout=25, use_proxy=opt_proxy)
+                    helper.log_debug("input_type={0:s} input={1:s} message='Requesting commit data from Github API.' url='{2:s}' parameters='{3:s}'".format(inputtype,inputname,url,json.dumps(parameter)))
+                    obj = parse_response(helper, response)
+                except GithubRateLimitException as e:
+                    helper.log_info("GitHub Rate Limit hit: waiting for {0} seconds before trying again the call to {1}".format(e.retry_after, url))
+                    time.sleep(e.retry_after)
+                    response = helper.send_http_request(url, method, parameters=parameter, payload=None, headers=header, cookies=None, verify=True, cert=None, timeout=25, use_proxy=opt_proxy)
+                    obj = parse_response(helper, response)
 
                 if obj is None:
                     helper.log_info("input_type={0:s} input={1:s} message='No records retrieved from Github API.'".format(inputtype,inputname))
@@ -196,7 +224,6 @@ def collect_events(helper, ew):
 
                 if has_results:
                     helper.log_debug("input_type={0:s} input={1:s} message='Getting next page.' link_next='{2:s}'".format(inputtype,inputname,url))
-                    response = helper.send_http_request(url, method, parameters=None, payload=None, headers=header, cookies=None, verify=True, cert=None, timeout=25, use_proxy=opt_proxy)
                 else:
                     helper.log_debug("input_type={0:s} input={1:s} message='No additional pages.'".format(inputtype,inputname))
 
