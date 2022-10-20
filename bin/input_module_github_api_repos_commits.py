@@ -52,7 +52,6 @@ def parse_response(helper, res):
 def fetch_repos(helper, url, header):
     repo_names = []
     repo_dt_lastpush = ""
-    header['Accept'] = 'application/vnd.github.v3+json'
     params = {
         'type': helper.get_arg('github_repotype'),
         'per_page': 100,
@@ -117,19 +116,35 @@ def collect_events(helper, ew):
 
     # Create initial time to query for commits
     initial_status = (datetime.now() - timedelta(git_daysago)).strftime("%Y-%m-%d")
-    
+
     # Create API request parameters
     connect_string = "{0}:{1}".format(git_username, git_password)
     auth = base64.b64encode(connect_string.encode("ascii")).decode("ascii")
-    header =  {'Authorization': 'Basic {0}'.format(auth)}
+    header = {
+        'Authorization': 'Basic {0}'.format(auth),
+        'Accept': 'application/vnd.github+json'
+    }
     if git_username == "":
         header['Authorization'] = 'Bearer {0}'.format(git_password)
     method = 'GET'
 
+    # Determine API schema to use
+    if git_enterprise is True:
+        base_url = "https://{0}/api/v3".format(git_instance)
+        helper.log_debug("input_type={0:s} input={1:s} message='Github Enterprise specified in input configuration. Using /api/v3/ path instead of subdomain.' base_url='{2:s}'".format(inputtype, inputname, base_url))
+    else:
+        if git_instance != "api.github.com":
+            helper.log_error("input_type={0:s} input={1:s} message='Github instance not configured as enterprise & doesn't match public API domain! WTF!? Using default API resource.'".format(inputtype, inputname))
+            git_instance = "api.github.com"
+
+        base_url = "https://{0}".format(git_instance)
+        helper.log_debug("input_type={0:s} input={1:s} message='Github.com identified as instance.' base_url='{2:s}'".format(inputtype, inputname, base_url))
+
     if git_repo == "*":
         try:
+            url = "{0}/orgs/{1}/repos".format(base_url, git_owner)
             # Fetch all repos and the start date (oldest over all)
-            git_repositories, initial_status = fetch_repos(helper, "https://{0}/orgs/{1}/repos".format(git_instance, git_owner), header)
+            git_repositories, initial_status = fetch_repos(helper, url, header)
         except Exception as e:
             helper.log_error("Exception occurred while fetching all repositories - {0}".format(e))
             raise e
@@ -144,18 +159,8 @@ def collect_events(helper, ew):
             git_repo_fullname = git_repo
             git_repo = git_repo.split('/')[1]
 
-        # Determine API schema to use
-        if git_instance=="api.github.com":
-            url = "https://{0}/repos/{1}/{2}/commits".format(git_instance,git_owner,git_repo)
-            helper.log_debug("input_type={0:s} input={1:s} message='Github.com identified as instance. Using api subdomain.' url='{2:s}'".format(inputtype,inputname,url))
-            header['Accept'] = 'application/vnd.github.v3+json'
-        elif git_enterprise is True:
-            url = "https://{0}/api/v3/repos/{1}/{2}/commits".format(git_instance,git_owner,git_repo)
-            helper.log_debug("input_type={0:s} input={1:s} message='Github Enterprise specified in input configuration. Using /api/v3/repos/ path instead of subdomain.' url='{2:s}'".format(inputtype,inputname,url))
-        else:
-            url = "https://{0}/repos/{1}/{2}/commits".format(git_instance,git_owner,git_repo)
-            header['Accept'] = 'application/vnd.github.v3+json'
-            helper.log_error("input_type={0:s} input={1:s} message='Github instance not configured as enterprise & doesn't match public API domain! WTF!? Defaulting to public API path (/repos/).' url='{2:s}'".format(inputtype,inputname,url))
+        # Setting URL for fetching commits
+        url = "{0}/repos/{1}/{2}/commits".format(base_url, git_owner, git_repo)
 
         # Create checkpoint key
         opt_checkpoint = "{0:s}-{1:s}-{2:s}".format(inputtype,inputname,git_repo)
